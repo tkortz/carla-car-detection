@@ -1,0 +1,40 @@
+Logging Metrics:
+Losses/Loss/BoxClassifierLoss/classification_loss : 0.11010807752609253
+Losses/Loss/BoxClassifierLoss/localization_loss : 0.07902593165636063
+Losses/Loss/RPNLoss/localization_loss : 0.2925340533256531
+Losses/Loss/RPNLoss/objectness_loss : 0.22993262112140656
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/bike : 0.706568107043191
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/motobike : 0.7158469853073723
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/pedestrian : nan
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/vehicle : 0.9104412542060125
+PascalBoxes_Precision/mAP@0.5IOU : 0.7776187821855253
+Logging Metrics:
+Losses/Loss/BoxClassifierLoss/classification_loss : 0.04113376885652542
+Losses/Loss/BoxClassifierLoss/localization_loss : 0.03809041902422905
+Losses/Loss/RPNLoss/localization_loss : 0.20343564450740814
+Losses/Loss/RPNLoss/objectness_loss : 0.16843156516551971
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/bike : 0.8234158477832229
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/motobike : 0.9214188453159041
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/pedestrian : nan
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/vehicle : 0.9653976436241687
+PascalBoxes_Precision/mAP@0.5IOU : 0.9034107789077651
+Logging Metrics:
+Losses/Loss/BoxClassifierLoss/classification_loss : 0.0480617955327034
+Losses/Loss/BoxClassifierLoss/localization_loss : 0.03192047402262688
+Losses/Loss/RPNLoss/localization_loss : 0.058663610368967056
+Losses/Loss/RPNLoss/objectness_loss : 0.10629145056009293
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/bike : 0.813919523483188
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/motobike : 0.9187112648581083
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/pedestrian : 0.6788609339156586
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/vehicle : 0.9688881186394472
+PascalBoxes_Precision/mAP@0.5IOU : 0.8450949602241005
+Logging Metrics:
+Losses/Loss/BoxClassifierLoss/classification_loss : 0.05467885360121727
+Losses/Loss/BoxClassifierLoss/localization_loss : 0.04191889241337776
+Losses/Loss/RPNLoss/localization_loss : 0.04267658293247223
+Losses/Loss/RPNLoss/objectness_loss : 0.09898936003446579
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/bike : 0.9147202790890793
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/motobike : 0.9516035163093988
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/pedestrian : 0.8735362292485835
+PascalBoxes_PerformanceByCategory/AP@0.5IOU/vehicle : 0.9755791658036299
+PascalBoxes_Precision/mAP@0.5IOU : 0.9288597976126729

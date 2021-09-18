@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path, PurePath
+
 sys.path.append("./models/research/object_detection/")
 sys.path.append("./models/research/")
 
@@ -16,7 +17,7 @@ class detector:
     def __init__(self, model_directory):
         model_path = os.path.join(model_directory, 'frozen_inference_graph.pb')
         labelmap_path = os.path.join(model_directory, 'labelmap.pbtxt')
-        self.num_classes = 5
+        self.num_classes = 6
         self.label_map = label_map_util.load_labelmap(labelmap_path)
         self.categories = label_map_util.convert_label_map_to_categories(self.label_map,
                                                                     max_num_classes=self.num_classes,
@@ -38,7 +39,7 @@ class detector:
             self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
             self.num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
 
-    def draw_boxes_for_image(self, frame, min_score_threshold):
+    def draw_boxes_for_image(self, frame, min_score_threshold, class_list):
         frame_expanded = np.expand_dims(frame, axis=0)   
         (boxes, scores, classes, num) = self.sess.run(
                 [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
@@ -63,7 +64,8 @@ class detector:
             
         good_boxes = [box
                       for box, score, cls in zip(np.squeeze(boxes), np.squeeze(scores), np.squeeze(classes).astype(np.int32))
-                      if score >= min_score_threshold and 'traffic' not in self.category_index[cls]['name']]
+                      if score >= min_score_threshold and \
+                         self.category_index[cls]['name'] in class_list]
         return frame, good_boxes
 
     @staticmethod
@@ -87,17 +89,18 @@ class detector:
             print(line, file=ofile)
             
     def process_image(self, video_name, frame_number, image_path,
-                      min_score_threshold, output_path, save_images):
+                      min_score_threshold, output_path, save_images,
+                      class_list, class_str):
         image = cv2.imread(image_path)
         image_name = Path(image_path).stem
         result_frame = None
         # Set up logging file
-        log_name = os.path.join(output_path, f"{video_name}_log.txt")
+        log_name = os.path.join(output_path, f"{video_name}_log_{class_str}.txt")
         with open(log_name, 'a') as log_file:
             print("At Frame:", frame_number)
             frame = np.array(image)
             # Draw boxes
-            frame, boxes = self.draw_boxes_for_image(frame, min_score_threshold)
+            frame, boxes = self.draw_boxes_for_image(frame, min_score_threshold, class_list)
             height, width, layers = frame.shape
             # Log boxes
             detector.log_boxes(frame_number, boxes, log_file, width, height)
@@ -110,7 +113,8 @@ class detector:
                 vis_util.save_image_array_as_png(frame, frame_path)
         return result_frame
 
-    def process_image_folder(self, folder_path, min_score_threshold, output_path, save_images):
+    def process_image_folder(self, folder_path, min_score_threshold, output_path, save_images,
+                             class_list, class_str):
         folder_name = Path(folder_path).stem
         frames = []
         file_names = os.listdir(folder_path)
@@ -120,7 +124,8 @@ class detector:
             if os.path.isfile(image_path):
                 frame_number = len(frames)
                 next_frame = self.process_image(folder_name, frame_number, image_path,
-                                                min_score_threshold, output_path, save_images)
+                                                min_score_threshold, output_path, save_images,
+                                                class_list, class_str)
                 frames.append(next_frame)
         if save_images:
             video_path = os.path.join(output_path, folder_name)
@@ -128,12 +133,13 @@ class detector:
             print("Saving video at", video_path)
             images_to_video(frames, video_path, 30)
                 
-    def process_video(self, video_path, min_score_threshold, output_path, save_images):
+    def process_video(self, video_path, min_score_threshold, output_path, save_images,
+                      class_list, class_str):
         video_name = Path(video_path).stem
         # Open video file
         video = cv2.VideoCapture(video_path)
         # Set up logging file
-        log_name = os.path.join(output_path, f"{video_name}_log.txt")
+        log_name = os.path.join(output_path, f"{video_name}_log_{class_str}.txt")
         with open(log_name, 'a') as log_file:
             frames = []
             while(video.isOpened()):
@@ -143,7 +149,7 @@ class detector:
                 frame_number = len(frames)
                 print("At Frame:", frame_number)
                 # Draw boxes
-                frame, boxes = self.draw_boxes_for_image(frame, min_score_threshold)
+                frame, boxes = self.draw_boxes_for_image(frame, min_score_threshold, class_list)
                 height, width, layers = frame.shape
                 # Log boxes
                 detector.log_boxes(frame_number, boxes, log_file, width, height)
@@ -152,7 +158,7 @@ class detector:
                     frame_path = os.path.join(output_path, f"{video_name}_frame_{frame_number}.png")
                     print("Saving image at", frame_path)
                     vis_util.save_image_array_as_png(frame, frame_path)
-                frames.append(frame)    
+                frames.append(frame)
             # Save as video
             if save_images:
                 out_video_path = os.path.join(output_path, f"{video_name}.avi")
@@ -168,7 +174,8 @@ def default_detector():
 
 def default_inference():
     det = default_detector()
-    det.process_video("./data/SignaledJunctionRightTurn_1.avi", 0.70, "./output/temp/", False)
+    det.process_video("./data/SignaledJunctionRightTurn_1.avi", 0.70, "./output/temp/", False,
+                      ["vehicle", "bike", "motobike"], "vehicle")
     return det
 
 if __name__ == "__main__":
@@ -180,8 +187,11 @@ if __name__ == "__main__":
     parser.add_argument('--min_threshold', type=float, help='Minimum score threshold for a bounding box to be drawn', default=0.7)
     parser.add_argument('--output_path', help='Path for storing output images and/or logs', required=True)
     parser.add_argument('--save_images', action='store_true')
+    parser.add_argument('--class_list', help='Comma-separated list of classes to detect', required=True)
+    parser.add_argument('--class_str', help='String to represent class list in logfile name', required=True)
 
     args = parser.parse_args()
 
     det = detector(args.model_path)
-    det.process_video(args.video_path, args.min_threshold, args.output_path, args.save_images)
+    det.process_video(args.video_path, args.min_threshold, args.output_path, args.save_images,
+                      args.class_list.split(','), args.class_str)
